@@ -12,11 +12,12 @@
         <div class="test-header">
             <div class="header-left">
                 <span class="test-title">IELTS ACADEMIC READING TEST</span>
-                <span class="test-taker-id">Test Taker ID 10</span>
+                <span class="test-taker-id">Cái này là bản test thui</span>
             </div>
             <div class="header-right">
-                <i class="fas fa-expand icon"></i>
-                <i class="fas fa-cog icon" id="settingsIcon"></i> <i class="fas fa-question-circle icon"></i>
+                <span class="score-display" id="scoreDisplay">0/0</span> <i class="fas fa-expand icon"></i>
+                <i class="fas fa-cog icon" id="settingsIcon"></i>
+                <i class="fas fa-question-circle icon"></i>
             </div>
         </div>
 
@@ -64,9 +65,29 @@
                     <button id="fontSizeLarge" class="font-size-btn" data-size="large">To</button>
                 </div>
             </div>
+            <div class="setting-group">
+                <h3>Ghi chú / Highlight</h3>
+                <div class="highlight-settings">
+                    <label for="showGradeHighlights">
+                        <input type="checkbox" id="showGradeHighlights" checked>
+                        Hiển thị highlight chấm điểm (đáp án đúng/sai)
+                    </label>
+                </div>
             </div>
+        </div>
     </div>
 
+    <div id="highlight-tooltip">
+        <div class="button-row">
+            <button id="removeHighlightBtn">Bỏ Highlight</button>
+        </div>
+        <div id="highlight-color-options">
+            <div class="color-box highlight-color-yellow" data-color-class="highlight-color-yellow"></div>
+            <div class="color-box highlight-color-blue" data-color-class="highlight-color-blue"></div>
+            <div class="color-box highlight-color-pink" data-color-class="highlight-color-pink"></div>
+            <div class="color-box highlight-color-green" data-color-class="highlight-color-green"></div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

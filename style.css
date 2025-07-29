@@ -7,21 +7,24 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 16px;
+    /* font-size được quản lý bởi các class font-size-base, font-size-small, v.v. */
+    font-size: 16px; /* Cỡ chữ cơ bản mặc định (sẽ được ghi đè bởi classes) */
 }
 
+/* Các lớp cỡ chữ mới */
 .font-size-small {
-    font-size: 0.9em;
+    font-size: 0.9em; /* Nhỏ hơn so với base */
 }
 
 .font-size-medium {
-    font-size: 1em;
+    font-size: 1em; /* Mặc định */
 }
 
 .font-size-large {
-    font-size: 1.1em;
+    font-size: 1.1em; /* Lớn hơn so với base */
 }
 
+/* Các thuộc tính font-size khác sẽ tương đối với body font-size */
 .test-container {
     display: flex;
     flex-direction: column;
@@ -35,6 +38,7 @@ body {
     color: black;
 }
 
+/* HEADER */
 .test-header {
     display: flex;
     justify-content: space-between;
@@ -78,6 +82,18 @@ body {
     color: #555;
 }
 
+/* Display Score in Header */
+.score-display {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #007bff;
+    margin-right: 20px;
+    padding: 5px 10px;
+    background-color: #e9f5ff;
+    border-radius: 5px;
+}
+
+/* PROGRESS BAR */
 .progress-bar-container {
     height: 5px;
     background-color: #e0e0e0;
@@ -92,6 +108,7 @@ body {
     transition: width 0.3s ease-in-out;
 }
 
+/* MAIN CONTENT - HAI CỘT VÀ THANH KÉO */
 .test-main-content {
     display: flex;
     flex: 1;
@@ -105,7 +122,7 @@ body {
     overflow-y: auto;
     min-width: 200px;
     flex-grow: 1;
-    font-size: 1em;
+    font-size: 1em; /* Cỡ chữ trong panel sẽ tương đối với body font-size */
     line-height: 1.6;
 }
 
@@ -120,6 +137,7 @@ body {
     flex-shrink: 0;
 }
 
+/* THANH KÉO (RESIZER) */
 .resizer {
     width: 8px;
     background-color: #ccc;
@@ -131,6 +149,7 @@ body {
     background-color: #999;
 }
 
+
 .section-info {
     font-size: 1em;
     color: #666;
@@ -139,6 +158,7 @@ body {
 .section-info p {
     margin: 0;
 }
+
 
 .reading-passage h2 {
     font-size: 1.6em;
@@ -154,6 +174,7 @@ body {
     color: black;
 }
 
+/* Điều chỉnh chung cho phần câu hỏi */
 .questions-section h2 {
     font-size: 1.5em;
     color: black;
@@ -161,26 +182,34 @@ body {
     margin-bottom: 15px;
 }
 
-.questions-section p {
+/* Cụ thể cho True/False/Not Given và các câu hỏi dạng p */
+.questions-section p { /* Áp dụng cho các câu hỏi dạng p trong TFNG */
     color: black;
     font-weight: normal;
     font-size: 1.1em;
-    margin-bottom: 1em;
+    margin-bottom: 1.2em;
     line-height: 1.6;
 }
 
-.questions-section p strong {
+.questions-section p strong { /* Cho số thứ tự câu hỏi và text trong TFNG */
     font-weight: bold;
 }
 
+.tfng-options {
+    display: block; /* Sẽ làm cho mỗi label chiếm một dòng */
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+
 .tfng-options label {
-    display: block;
-    margin-bottom: 10px;
+    display: block; /* Đảm bảo mỗi label là một khối và chiếm một dòng */
+    margin-bottom: 10px; /* Khoảng cách giữa các lựa chọn */
     cursor: pointer;
     line-height: 1.5;
     padding: 5px 0;
     font-weight: normal;
-    transition: font-weight 0.2s ease;
+    transition: font-weight 0.2s ease, color 0.2s ease; /* Thêm transition cho color */
     font-size: 1em;
 }
 
@@ -192,10 +221,12 @@ body {
 
 .tfng-options label.selected-bold {
     font-weight: bold;
+    color: #007bff; /* Màu highlight cho lựa chọn người dùng */
 }
 
-.notes-heading {
-    font-size: 1.25em;
+/* Cụ thể cho Complete Notes (ô điền đáp án) */
+.notes-heading { /* Tiêu đề chính của notes */
+    font-size: 1.25em; /* Lớn hơn h3 thông thường */
     font-weight: bold;
     color: black;
     margin-top: 25px;
@@ -203,27 +234,30 @@ body {
 }
 
 .notes-list {
-    list-style-type: disc;
-    margin-left: 20px;
+    list-style-type: disc; /* Dấu chấm đầu dòng */
+    margin-left: 20px; /* Lùi dòng cho toàn bộ danh sách */
     padding-left: 0;
     margin-top: 0;
     margin-bottom: 15px;
 }
 
 .notes-list li {
-    margin-bottom: 8px;
+    margin-bottom: 18px;
     line-height: 1.6;
     color: black;
-    font-size: 1.05em;
+    font-size: 1.05em; /* Cỡ chữ cho nội dung li */
+    display: flex; /* Sử dụng flexbox để căn chỉnh các phần tử trên cùng dòng */
+    align-items: baseline; /* Căn chỉnh theo baseline của text */
+    flex-wrap: wrap; /* Cho phép các phần tử xuống dòng */
 }
 
-.notes-list li .notes-subheading {
-    font-size: 1em;
-    margin: 0;
-    display: inline;
+.notes-list li .notes-subheading { /* Cho subheading nằm trong li */
+    font-size: 1em; /* Đảm bảo kích thước không quá lớn */
+    margin: 0; /* Xóa margin mặc định của p */
+    display: inline; /* Để p nằm trên cùng dòng với dấu chấm */
 }
 .notes-list li .notes-subheading strong {
-    font-weight: bold;
+    font-weight: bold; /* In đậm subheading */
 }
 
 .fill-in-blanks input[type="text"],
@@ -236,8 +270,10 @@ body {
     border-radius: 4px;
     font-size: 1.05em;
     box-sizing: border-box;
-    margin-top: 2px;
-    margin-bottom: 2px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    margin-left: 15px;
+    margin-right: 10px;
     color: black;
     text-align: left;
     font-weight: normal;
@@ -254,6 +290,7 @@ body {
 }
 
 
+/* FOOTER */
 .test-footer {
     display: flex;
     justify-content: space-between;
@@ -311,6 +348,7 @@ body {
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, font-weight 0.2s ease;
 }
 
+/* Nút Part Label */
 .question-pagination .q-num.part-label {
     width: auto;
     min-width: 60px;
@@ -342,6 +380,8 @@ body {
     font-weight: bold;
 }
 
+
+/* Màu xanh lá cây khi câu hỏi đã được trả lời */
 .question-pagination .q-num.answered {
     background-color: #8cc63f;
     color: white;
@@ -353,73 +393,42 @@ body {
     background-color: #e0e0e0;
 }
 
+/* CSS cho popup kết quả (đảm bảo ẩn hoàn toàn) */
 #resultsContainer {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center;
-    z-index: 1000;
-    visibility: hidden;
-    opacity: 0;
-    transition: visibility 0s, opacity 0.3s ease-in-out;
-}
-#resultsContainer.show {
-    visibility: visible;
-    opacity: 1;
-}
-#resultsContainer > div {
-    background: white; padding: 20px; border-radius: 8px; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative;
-    color: black;
-}
-#resultsContainer h3 {
-    text-align: center;
-    color: black;
-}
-#resultsContainer p {
-    margin-bottom: 8px;
-    line-height: 1.4;
-}
-#resultsContainer button {
-    background-color: #dc3545;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    display: block;
-    margin: 20px auto 0;
-}
-#resultsContainer button:hover {
-    background-color: #c82333;
+    display: none !important; /* Quan trọng: Đảm bảo ẩn hoàn toàn */
 }
 
+
+/* --- CSS cho Modal Cài đặt --- */
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 1001;
+    display: none; /* Ẩn mặc định */
+    position: fixed; /* Luôn nằm trên cùng */
+    z-index: 1001; /* Lớn hơn mọi thứ khác */
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.4);
+    overflow: auto; /* Cho phép cuộn nếu nội dung lớn */
+    background-color: rgba(0,0,0,0.4); /* Nền tối mờ */
     justify-content: center;
     align-items: center;
 }
 
 .modal.show {
-    display: flex;
+    display: flex; /* Hiển thị modal */
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: auto;
+    margin: auto; /* Căn giữa */
     padding: 25px;
     border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
+    width: 80%; /* Chiều rộng tương đối */
+    max-width: 500px; /* Chiều rộng tối đa */
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     position: relative;
-    color: black;
+    color: black; /* Đảm bảo chữ trong modal màu đen */
 }
 
 .modal-content h2 {
@@ -482,4 +491,185 @@ body {
     color: white;
     border-color: #007bff;
     font-weight: bold;
+}
+
+/* Highlight trong bài đọc */
+.passage-highlight {
+    background-color: yellow; /* Màu highlight */
+    font-weight: bold; /* In đậm chữ được highlight */
+}
+
+/* Phần giải thích dưới câu hỏi */
+.explanation-container {
+    background-color: #f9f9f9;
+    border-left: 4px solid #007bff;
+    padding: 10px 15px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.explanation-container p {
+    margin: 0 0 5px 0;
+    line-height: 1.4;
+    color: #333; /* Đảm bảo màu chữ trong giải thích không bị thay đổi bởi màu của câu hỏi */
+}
+
+.explanation-container strong {
+    color: #0056b3; /* Màu cho tiêu đề giải thích */
+}
+
+/* Highlight do người dùng tạo */
+.user-highlight {
+    background-color: #ceff33; /* Vàng neon */
+    cursor: pointer; /* Cho biết có thể tương tác */
+}
+
+/* Thêm một class để ẩn các highlight do chấm điểm */
+.hide-grade-highlights .passage-highlight {
+    background-color: transparent !important;
+    font-weight: normal !important;
+}
+
+/* CSS mới cho ô đáp án đúng */
+.correct-answer-box {
+    background-color: #d4edda; /* Màu nền xanh nhạt */
+    color: #155724; /* Màu chữ xanh đậm */
+    border: 1px solid #c3e6cb;
+    padding: 5px 8px;
+    border-radius: 4px;
+    margin: 8px; /* THAY ĐỔI: Đặt tất cả margin thành 8px */
+    font-size: 0.9em;
+    vertical-align: middle;
+    white-space: nowrap; /* Ngăn xuống dòng nếu có thể */
+    display: inline-block; /* Quan trọng để áp dụng margin và padding tốt hơn */
+}
+
+/* NEW: Style cho đáp án đã chọn đúng/sai */
+.tfng-options label.correct-selected { /* Cho TFNG */
+    color: green;
+    font-weight: bold;
+}
+
+.tfng-options label.incorrect-selected { /* Cho TFNG */
+    color: red;
+    font-weight: bold;
+}
+
+.q-input.correct-selected { /* Cho Complete Notes */
+    color: green;
+    border-color: green;
+    font-weight: bold;
+}
+
+.q-input.incorrect-selected { /* Cho Complete Notes */
+    color: red;
+    border-color: red;
+    font-weight: bold;
+}
+
+/* Style cho result-indicator (đã bị loại bỏ trong JS, nhưng giữ CSS để an toàn) */
+.result-indicator {
+    font-weight: bold;
+    margin-left: 10px;
+    font-size: 0.9em;
+    white-space: nowrap;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+.correct-indicator {
+    color: green;
+}
+
+.incorrect-indicator {
+    color: red;
+}
+
+/* Các màu highlight người dùng tùy chọn */
+.highlight-color-yellow {
+    background-color: #ceff33;
+}
+
+.highlight-color-blue {
+    background-color: #add8e6;
+}
+
+.highlight-color-pink {
+    background-color: #ffb6c1;
+}
+
+.highlight-color-green {
+    background-color: #90ee90;
+}
+
+/* Tooltip cho highlight người dùng */
+#highlight-tooltip {
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    display: none;
+    z-index: 1000;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transform: translate(-50%, -100%);
+    top: 0;
+    left: 0;
+    flex-direction: column;
+    align-items: center;
+}
+
+#highlight-tooltip .button-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+#highlight-tooltip button {
+    background: none;
+    border: none;
+    color: white;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-size: 0.85em;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+}
+
+#highlight-tooltip button:hover {
+    background-color: #555;
+}
+
+#highlight-tooltip button:first-child {
+    margin-right: 5px;
+}
+
+#highlight-color-options {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid #555;
+}
+
+#highlight-color-options .color-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+#highlight-color-options .color-box:hover {
+    border-color: #ccc;
+}
+
+#highlight-color-options .color-box.active-color {
+    border-color: white;
 }

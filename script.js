@@ -403,6 +403,16 @@ function checkAndDisplayResults() {
     let totalQuestions = 0; // Đếm số câu hỏi thực sự có đáp án để chấm
     let resultsHtml = '<h3>Kết quả của bạn:</h3>';
 
+    // Ẩn tất cả các highlight chấm điểm cũ
+    document.querySelectorAll('.result-indicator, .correct-answer-box').forEach(el => el.remove());
+    document.querySelectorAll('.correct-selected, .incorrect-selected').forEach(el => {
+        el.classList.remove('correct-selected', 'incorrect-selected');
+    });
+    document.querySelectorAll('.q-input.correct-selected, .q-input.incorrect-selected').forEach(el => {
+        el.classList.remove('correct-selected', 'incorrect-selected');
+    });
+
+
     questionSection.questions.forEach(qBlock => {
         if (qBlock.type === 'true_false_not_given') {
             qBlock.statements.forEach(stmt => {
@@ -412,11 +422,28 @@ function checkAndDisplayResults() {
                 const isCorrect = (userAnswer === correctAnswer);
                 if (isCorrect) totalCorrect++;
 
+                // Lấy phần tử tfng-options
+                const tfngOptionsDiv = document.querySelector(`.tfng-options[data-qnum="${stmt.qNum}"]`);
+                if (tfngOptionsDiv) {
+                    // Cập nhật class cho lựa chọn của người dùng (vẫn giữ màu xanh/đỏ)
+                    const selectedLabel = tfngOptionsDiv.querySelector(`input[name="q${stmt.qNum}"][value="${userResponses[stmt.qNum]}"]`)?.closest('label');
+                    if (selectedLabel) {
+                        selectedLabel.classList.add(isCorrect ? 'correct-selected' : 'incorrect-selected');
+                    }
+                    
+                    // Highlight đáp án đúng nếu người dùng chọn sai hoặc chưa trả lời
+                    if (!isCorrect) {
+                        const correctLabel = tfngOptionsDiv.querySelector(`input[name="q${stmt.qNum}"][value="${stmt.answers[stmt.qNum]}"]`)?.closest('label');
+                        if (correctLabel) {
+                            correctLabel.classList.add('correct-selected'); // Highlight đáp án đúng bằng màu xanh
+                        }
+                    }
+                }
+
                 resultsHtml += `
                     <p><strong>Câu ${stmt.qNum}: ${stmt.text}</strong><br>
                     Trả lời của bạn: <span style="color: ${isCorrect ? 'green' : 'red'};">${userResponses[stmt.qNum] || 'Chưa trả lời'}</span><br>
                     Đáp án đúng: <span style="color: green;">${stmt.answers[stmt.qNum]}</span>
-                    ${isCorrect ? '&#9989;' : '&#10060;'}
                     </p>
                 `;
             });
@@ -445,11 +472,33 @@ function checkAndDisplayResults() {
                 const isCorrect = (userAnswer === correctAnswer);
                 if (isCorrect) totalCorrect++;
 
+                // Lấy input field
+                const textInput = document.querySelector(`input[type="text"][data-qnum="${item.qNum}"]`);
+                const listItem = document.getElementById(`q${item.qNum}`); // Lấy li chứa input
+                
+                if (textInput) {
+                    // Áp dụng class đúng/sai trực tiếp cho input
+                    textInput.classList.add(isCorrect ? 'correct-selected' : 'incorrect-selected');
+
+                    // Thêm đáp án đúng vào bên cạnh input nếu sai
+                    if (!isCorrect && item.answer) {
+                        const correctAnswerSpan = document.createElement('span');
+                        correctAnswerSpan.classList.add('correct-answer-box');
+                        correctAnswerSpan.textContent = `${item.answer}`;
+                        if (listItem) {
+                             // Tìm vị trí của input trong li để chèn đáp án đúng bên cạnh nó
+                            const inputElement = listItem.querySelector(`input[type="text"][data-qnum="${item.qNum}"]`);
+                            if (inputElement) {
+                                inputElement.insertAdjacentElement('afterend', correctAnswerSpan);
+                            }
+                        }
+                    }
+                }
+                
                 resultsHtml += `
                         <p><strong>Câu ${item.qNum}:</strong><br>
                         Trả lời của bạn: <span style="color: ${isCorrect ? 'green' : 'red'};">${userResponses[item.qNum] || 'Chưa trả lời'}</span><br>
                         Đáp án đúng: <span style="color: green;">${item.answer}</span>
-                        ${isCorrect ? '&#9989;' : '&#10060;'}
                         </p>
                     `;
             });
@@ -471,6 +520,9 @@ function checkAndDisplayResults() {
         </div>
     `;
     resultsContainer.classList.add('show');
+
+    // Cập nhật điểm ở header
+    document.getElementById('scoreDisplay').textContent = `${totalCorrect}/${totalQuestions}`;
 }
 
 document.querySelector('.nav-button:last-of-type').addEventListener('click', checkAndDisplayResults);
@@ -481,6 +533,9 @@ const settingsIcon = document.getElementById('settingsIcon');
 const settingsModal = document.getElementById('settingsModal');
 const closeButton = settingsModal.querySelector('.close-button');
 const fontSizeButtons = document.querySelectorAll('.font-size-btn');
+// Lấy thẻ hiển thị điểm trong header
+const scoreDisplay = document.getElementById('scoreDisplay');
+
 
 // Mở modal cài đặt
 settingsIcon.addEventListener('click', () => {
@@ -548,7 +603,218 @@ function applySavedFontSize() {
 }
 
 
+// --- Chức năng Highlight (Tô màu đoạn văn) ---
+let currentRange = null; // Lưu trữ Range của vùng văn bản được chọn
+let highlightTooltip = null; // Tham chiếu đến tooltip highlight
+let selectedHighlightColor = 'yellow'; // Màu highlight mặc định
+const readingPassageElement = document.getElementById('readingPassage');
+
+// Khởi tạo tooltip
+function initializeHighlightTooltip() {
+    highlightTooltip = document.createElement('div');
+    highlightTooltip.id = 'highlight-tooltip';
+    highlightTooltip.innerHTML = `
+        <div class="button-row">
+            <button id="highlightBtn">Highlight</button>
+            <button id="clearHighlightBtn">Clear</button>
+        </div>
+        <div id="highlight-color-options">
+            <div class="color-box highlight-color-yellow active-color" data-color="yellow"></div>
+            <div class="color-box highlight-color-blue" data-color="blue"></div>
+            <div class="color-box highlight-color-pink" data-color="pink"></div>
+            <div class="color-box highlight-color-green" data-color="green"></div>
+        </div>
+    `;
+    document.body.appendChild(highlightTooltip);
+
+    document.getElementById('highlightBtn').addEventListener('click', applyHighlight);
+    document.getElementById('clearHighlightBtn').addEventListener('click', clearHighlight);
+    document.getElementById('highlight-color-options').addEventListener('click', (e) => {
+        if (e.target.classList.contains('color-box')) {
+            document.querySelectorAll('#highlight-color-options .color-box').forEach(box => {
+                box.classList.remove('active-color');
+            });
+            e.target.classList.add('active-color');
+            selectedHighlightColor = e.target.dataset.color;
+        }
+    });
+}
+
+
+document.addEventListener('mouseup', (e) => {
+    const selection = window.getSelection();
+    // Kiểm tra xem có văn bản nào được chọn và việc chọn nằm trong vùng readingPassageElement
+    if (selection.toString().length > 0 && readingPassageElement.contains(selection.anchorNode) && readingPassageElement.contains(selection.focusNode)) {
+        currentRange = selection.getRangeAt(0);
+        showHighlightTooltip(e.clientX, e.clientY);
+    } else {
+        // Nếu không có văn bản được chọn hoặc chọn bên ngoài vùng passage, ẩn tooltip
+        hideHighlightTooltip();
+    }
+});
+
+function showHighlightTooltip(x, y) {
+    if (!highlightTooltip) initializeHighlightTooltip(); // Khởi tạo nếu chưa có
+    
+    highlightTooltip.style.display = 'flex'; // Hiển thị tooltip
+    
+    // Đảm bảo tooltip nằm trong viewport
+    const tooltipRect = highlightTooltip.getBoundingClientRect();
+    let left = x;
+    let top = y;
+
+    // Điều chỉnh vị trí để tooltip không bị tràn màn hình
+    // Nếu tooltip bị tràn sang phải
+    if (left + tooltipRect.width > window.innerWidth - 10) { // Thêm 10px padding từ rìa
+        left = window.innerWidth - tooltipRect.width - 10;
+    }
+    // Nếu tooltip bị tràn sang trái
+    if (left < 10) {
+        left = 10;
+    }
+    // Nếu tooltip bị tràn lên trên
+    if (top - tooltipRect.height - 10 < 0) { // Thêm 10px padding từ trên
+        top = y + 10; // Hiển thị xuống dưới chuột
+    } else {
+        top = y - tooltipRect.height - 10; // Mặc định hiển thị lên trên chuột
+    }
+
+    highlightTooltip.style.left = `${left}px`;
+    highlightTooltip.style.top = `${top}px`;
+}
+
+function hideHighlightTooltip() {
+    if (highlightTooltip) {
+        highlightTooltip.style.display = 'none';
+    }
+    // Không cần xóa currentRange ở đây, nó sẽ được cập nhật khi có selection mới
+}
+
+function applyHighlight() {
+    if (!currentRange || currentRange.collapsed) { // Đảm bảo có selection và không phải là điểm chèn
+        hideHighlightTooltip();
+        return;
+    }
+
+    // Tạo một phần tử span mới
+    const span = document.createElement('span');
+    span.classList.add('user-highlight', `highlight-color-${selectedHighlightColor}`);
+
+    try {
+        // Bọc nội dung của range trong span mới
+        currentRange.surroundContents(span);
+    } catch (e) {
+        // Xử lý lỗi nếu surroundContents không thể thực hiện (ví dụ: selection cắt ngang các thẻ HTML)
+        console.warn("Could not surround contents directly. Attempting to wrap nodes individually.", e);
+        wrapRangeContents(currentRange, span.className);
+    }
+    
+    hideHighlightTooltip();
+    saveHighlights(); // Lưu highlights sau khi áp dụng
+    clearSelection(); // Xóa selection sau khi highlight
+}
+
+// Hàm hỗ trợ để bọc nội dung range một cách an toàn hơn
+function wrapRangeContents(range, className) {
+    const fragment = range.extractContents();
+    const wrapper = document.createElement('span');
+    wrapper.className = className;
+    wrapper.appendChild(fragment);
+    range.insertNode(wrapper);
+}
+
+
+function clearHighlight() {
+    if (!currentRange || currentRange.collapsed) {
+        hideHighlightTooltip();
+        return;
+    }
+
+    // Lấy tất cả các highlight spans trong vùng chọn
+    const highlightedSpans = getHighlightsInRange(currentRange);
+
+    highlightedSpans.forEach(span => {
+        // Thay thế span bằng nội dung bên trong của nó
+        const parent = span.parentNode;
+        while (span.firstChild) {
+            parent.insertBefore(span.firstChild, span);
+        }
+        parent.removeChild(span);
+    });
+
+    hideHighlightTooltip();
+    saveHighlights(); // Lưu highlights sau khi xóa
+    clearSelection(); // Xóa selection sau khi clear
+}
+
+// Hàm hỗ trợ để lấy tất cả các highlight spans trong một range
+function getHighlightsInRange(range) {
+    const commonAncestor = range.commonAncestorContainer;
+    const highlightSpans = [];
+
+    // Duyệt qua các node trong range
+    const treeWalker = document.createTreeWalker(
+        commonAncestor,
+        NodeFilter.SHOW_ELEMENT,
+        { acceptNode: (node) => {
+            if (node.nodeType === Node.ELEMENT_NODE && node.classList.contains('user-highlight')) {
+                // Kiểm tra xem highlight span này có giao với range hay không
+                const spanRange = document.createRange();
+                spanRange.selectNode(node);
+                if (range.intersectsNode(node)) {
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            }
+            return NodeFilter.FILTER_SKIP;
+        }},
+        false
+    );
+
+    let currentNode;
+    while ((currentNode = treeWalker.nextNode())) {
+        highlightSpans.push(currentNode);
+    }
+    return highlightSpans;
+}
+
+// Xóa selection hiện tại
+function clearSelection() {
+    if (window.getSelection) {
+        if (window.getSelection().empty) {  // Chrome
+            window.getSelection().empty();
+        } else if (window.getSelection().removeAllRanges) {  // Firefox
+            window.getSelection().removeAllRanges();
+        }
+    } else if (document.selection) {  // IE
+        document.selection.empty();
+    }
+}
+
+
+function saveHighlights() {
+    if (!readingPassageElement) return;
+
+    // Chỉ lưu nội dung bên trong của readingPassageElement
+    const passageHtml = readingPassageElement.innerHTML;
+    localStorage.setItem('ieltsHighlights', passageHtml);
+}
+
+function loadHighlights() {
+    if (!readingPassageElement) return;
+
+    const savedHighlights = localStorage.getItem('ieltsHighlights');
+    if (savedHighlights) {
+        readingPassageElement.innerHTML = savedHighlights;
+    }
+}
+
+
 // --- Khởi tạo khi trang tải xong ---
 document.addEventListener('DOMContentLoaded', () => {
     loadExamContent(); // Hàm này giờ sẽ gọi cả loadUserResponses và applySavedFontSize
+    loadHighlights(); // Tải highlights đã lưu
+    initializeHighlightTooltip(); // Khởi tạo tooltip highlight
+    
+    // Cập nhật scoreDisplay ban đầu (có thể là 0/Total hoặc score đã lưu nếu có)
+    document.getElementById('scoreDisplay').textContent = `0/${totalQuestionsCount}`;
 });
